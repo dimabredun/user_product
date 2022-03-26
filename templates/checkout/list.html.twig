@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        body{
+            width: 45%;
+            background-color: #e2e2e2;
+        }
+        tr .products{
+            background-color: #d8ffd8;
+            width: 10%;
+        }
+        th{
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+
+    <table class="table">
+        <thead class="thead-light">
+            <tr>
+                <th scope="col" width="20%">User</th>
+                <th scope="col" width="25%" >Selected Products</th>
+            </tr>
+        </thead>
+        <tbody>
+                {% if users is not empty %} {% endif %}
+                    {% for user in users %}
+            <tr>
+                <td class="users">{{ user.firstName }} {{ user.lastName}} </td>
+                    {% for item in user.products.values %}
+                <td class="products">{{ item }}</td>
+                    {% endfor %}
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}
