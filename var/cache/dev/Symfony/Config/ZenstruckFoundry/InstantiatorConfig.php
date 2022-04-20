@@ -8,7 +8,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 
 /**
- * This class is automatically generated to help creating config.
+ * This class is automatically generated to help in creating a config.
  */
 class InstantiatorConfig 
 {
@@ -16,6 +16,7 @@ class InstantiatorConfig
     private $allowExtraAttributes;
     private $alwaysForceProperties;
     private $service;
+    private $_usedProperties = [];
     
     /**
      * Whether or not to call an object's constructor during instantiation.
@@ -25,6 +26,7 @@ class InstantiatorConfig
      */
     public function withoutConstructor($value): static
     {
+        $this->_usedProperties['withoutConstructor'] = true;
         $this->withoutConstructor = $value;
     
         return $this;
@@ -38,6 +40,7 @@ class InstantiatorConfig
      */
     public function allowExtraAttributes($value): static
     {
+        $this->_usedProperties['allowExtraAttributes'] = true;
         $this->allowExtraAttributes = $value;
     
         return $this;
@@ -51,6 +54,7 @@ class InstantiatorConfig
      */
     public function alwaysForceProperties($value): static
     {
+        $this->_usedProperties['alwaysForceProperties'] = true;
         $this->alwaysForceProperties = $value;
     
         return $this;
@@ -65,6 +69,7 @@ class InstantiatorConfig
      */
     public function service($value): static
     {
+        $this->_usedProperties['service'] = true;
         $this->service = $value;
     
         return $this;
@@ -73,22 +78,26 @@ class InstantiatorConfig
     public function __construct(array $value = [])
     {
     
-        if (isset($value['without_constructor'])) {
+        if (array_key_exists('without_constructor', $value)) {
+            $this->_usedProperties['withoutConstructor'] = true;
             $this->withoutConstructor = $value['without_constructor'];
             unset($value['without_constructor']);
         }
     
-        if (isset($value['allow_extra_attributes'])) {
+        if (array_key_exists('allow_extra_attributes', $value)) {
+            $this->_usedProperties['allowExtraAttributes'] = true;
             $this->allowExtraAttributes = $value['allow_extra_attributes'];
             unset($value['allow_extra_attributes']);
         }
     
-        if (isset($value['always_force_properties'])) {
+        if (array_key_exists('always_force_properties', $value)) {
+            $this->_usedProperties['alwaysForceProperties'] = true;
             $this->alwaysForceProperties = $value['always_force_properties'];
             unset($value['always_force_properties']);
         }
     
-        if (isset($value['service'])) {
+        if (array_key_exists('service', $value)) {
+            $this->_usedProperties['service'] = true;
             $this->service = $value['service'];
             unset($value['service']);
         }
@@ -101,16 +110,16 @@ class InstantiatorConfig
     public function toArray(): array
     {
         $output = [];
-        if (null !== $this->withoutConstructor) {
+        if (isset($this->_usedProperties['withoutConstructor'])) {
             $output['without_constructor'] = $this->withoutConstructor;
         }
-        if (null !== $this->allowExtraAttributes) {
+        if (isset($this->_usedProperties['allowExtraAttributes'])) {
             $output['allow_extra_attributes'] = $this->allowExtraAttributes;
         }
-        if (null !== $this->alwaysForceProperties) {
+        if (isset($this->_usedProperties['alwaysForceProperties'])) {
             $output['always_force_properties'] = $this->alwaysForceProperties;
         }
-        if (null !== $this->service) {
+        if (isset($this->_usedProperties['service'])) {
             $output['service'] = $this->service;
         }
     

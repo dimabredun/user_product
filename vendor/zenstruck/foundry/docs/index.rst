@@ -735,7 +735,7 @@ Factories as Services
 ~~~~~~~~~~~~~~~~~~~~~
 
 If your factories require dependencies, you can define them as a service. The following example demonstrates a very
-common use-case: encoding a password with the ``UserPasswordEncoderInterface`` service.
+common use-case: encoding a password with the ``UserPasswordHasherInterface`` service.
 
 .. code-block:: php
 
@@ -744,18 +744,18 @@ common use-case: encoding a password with the ``UserPasswordEncoderInterface`` s
     namespace App\Factory;
 
     use App\Entity\User;
-    use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+    use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
     use Zenstruck\Foundry\ModelFactory;
 
     final class UserFactory extends ModelFactory
     {
-        private $passwordEncoder;
+        private $passwordHasher;
 
-        public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+        public function __construct(UserPasswordHasherInterface $passwordHasher)
         {
             parent::__construct();
 
-            $this->passwordEncoder = $passwordEncoder;
+            $this->passwordHasher = $passwordHasher;
         }
 
         protected function getDefaults(): array
@@ -770,7 +770,7 @@ common use-case: encoding a password with the ``UserPasswordEncoderInterface`` s
         {
             return $this
                 ->afterInstantiate(function(User $user) {
-                    $user->setPassword($this->passwordEncoder->encodePassword($user, $user->getPassword()));
+                    $user->setPassword($this->passwordHasher->hashPassword($user, $user->getPassword()));
                 })
             ;
         }
@@ -1645,10 +1645,10 @@ Another feature of *stories* is the ability for them to *remember* the objects t
     {
         public function build(): void
         {
-            $this->add('php', CategoryFactory::createOne(['name' => 'php']));
+            $this->addState('php', CategoryFactory::createOne(['name' => 'php']));
 
             // factories are created when added as state
-            $this->add('symfony', CategoryFactory::new(['name' => 'symfony']));
+            $this->addState('symfony', CategoryFactory::new(['name' => 'symfony']));
         }
     }
 
@@ -1656,7 +1656,9 @@ Later, you can access the story's state when creating other fixtures:
 
 .. code-block:: php
 
-    PostFactory::createOne(['category' => CategoryStory::load()->get('php')]);
+    PostFactory::createOne([
+        'category' => CategoryStory::load()->get('php') // Category Proxy
+    ]);
 
     // or use the magic method (functionally equivalent to above)
     PostFactory::createOne(['category' => CategoryStory::php()]);
@@ -1664,6 +1666,46 @@ Later, you can access the story's state when creating other fixtures:
 .. note::
 
     Story state is cleared after each test (unless it is a :ref:`Global State Story <global-state>`).
+
+Story Pools
+^^^^^^^^^^^
+
+Stories can store (as state) *pools* of objects:
+
+.. code-block:: php
+
+    // src/Story/ProvinceStory.php
+
+    namespace App\Story;
+
+    use App\Factory\ProvinceFactory;
+    use Zenstruck\Foundry\Story;
+
+    final class ProvinceStory extends Story
+    {
+        public function build(): void
+        {
+            // add collection to a "pool"
+            $this->addToPool('be', ProvinceFactory::createMany(5, ['country' => 'BE']));
+
+            // equivalent to above
+            $this->addToPool('be', ProvinceFactory::new(['country' => 'BE'])->many(5));
+
+            // add single object to a pool
+            $this->addToPool('be', ProvinceFactory::createOne(['country' => 'BE']));
+
+            // add single object to single pool and make available as "state"
+            $this->addState('be-1', ProvinceFactory::createOne(['country' => 'BE']), 'be');
+        }
+    }
+
+Objects can be fetched from pools in your tests, fixtures or other stories:
+
+.. code-block:: php
+
+    ProvinceStory::getRandom('be'); // random Province|Proxy from "be" pool
+    ProvinceStory::getRandomSet('be', 3); // 3 random Province|Proxy's from "be" pool
+    ProvinceStory::getRandomRange('be', 1, 4); // between 1 and 4 random Province|Proxy's from "be" pool
 
 Bundle Configuration
 --------------------

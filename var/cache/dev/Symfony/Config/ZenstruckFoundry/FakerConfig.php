@@ -8,12 +8,13 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 
 /**
- * This class is automatically generated to help creating config.
+ * This class is automatically generated to help in creating a config.
  */
 class FakerConfig 
 {
     private $locale;
     private $service;
+    private $_usedProperties = [];
     
     /**
      * Change the default faker locale.
@@ -24,6 +25,7 @@ class FakerConfig
      */
     public function locale($value): static
     {
+        $this->_usedProperties['locale'] = true;
         $this->locale = $value;
     
         return $this;
@@ -38,6 +40,7 @@ class FakerConfig
      */
     public function service($value): static
     {
+        $this->_usedProperties['service'] = true;
         $this->service = $value;
     
         return $this;
@@ -46,12 +49,14 @@ class FakerConfig
     public function __construct(array $value = [])
     {
     
-        if (isset($value['locale'])) {
+        if (array_key_exists('locale', $value)) {
+            $this->_usedProperties['locale'] = true;
             $this->locale = $value['locale'];
             unset($value['locale']);
         }
     
-        if (isset($value['service'])) {
+        if (array_key_exists('service', $value)) {
+            $this->_usedProperties['service'] = true;
             $this->service = $value['service'];
             unset($value['service']);
         }
@@ -64,10 +69,10 @@ class FakerConfig
     public function toArray(): array
     {
         $output = [];
-        if (null !== $this->locale) {
+        if (isset($this->_usedProperties['locale'])) {
             $output['locale'] = $this->locale;
         }
-        if (null !== $this->service) {
+        if (isset($this->_usedProperties['service'])) {
             $output['service'] = $this->service;
         }
     
